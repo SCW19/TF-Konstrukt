@@ -1,1 +1,719 @@
 
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Team Freiheit – Das Konstrukt</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Sans+3:wght@300;400;600;700&display=swap');
+
+  :root {
+    --navy: #1a2a5e;
+    --navy-dark: #0f1a3d;
+    --navy-light: #243470;
+    --gold: #f0a500;
+    --gold-light: #f5c040;
+    --gold-pale: #fef3d0;
+    --white: #ffffff;
+    --gray: #8a9ab5;
+    --gray-light: #e8ecf5;
+    --red: #d63b3b;
+    --green: #2d9e5f;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Source Sans 3', sans-serif;
+    background: var(--navy-dark);
+    color: var(--white);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .header {
+    text-align: center;
+    padding: 48px 24px 32px;
+    position: relative;
+  }
+  .header::after {
+    content: '';
+    display: block;
+    width: 80px;
+    height: 3px;
+    background: var(--gold);
+    margin: 20px auto 0;
+  }
+  .logo-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  .tf-logo {
+    width: 52px; height: 52px;
+    background: var(--gold);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-weight: 900;
+    color: var(--navy);
+    font-size: 22px;
+    letter-spacing: -1px;
+    flex-shrink: 0;
+  }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(24px, 5vw, 42px);
+    font-weight: 900;
+    color: var(--white);
+    letter-spacing: -0.5px;
+  }
+  h1 span { color: var(--gold); }
+  .subtitle {
+    font-size: 15px;
+    color: var(--gray);
+    font-weight: 300;
+    letter-spacing: 0.5px;
+    margin-top: 6px;
+  }
+
+  .tabs {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 0 24px 32px;
+    flex-wrap: wrap;
+  }
+  .tab {
+    padding: 9px 22px;
+    border-radius: 40px;
+    border: 1.5px solid rgba(255,255,255,0.15);
+    background: transparent;
+    color: var(--gray);
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    letter-spacing: 0.3px;
+  }
+  .tab:hover { border-color: var(--gold); color: var(--white); }
+  .tab.active {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: var(--navy);
+  }
+
+  .canvas {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 20px 60px;
+  }
+
+  #view-overview { display: block; }
+  #view-problem { display: none; }
+  #view-details { display: none; }
+
+  .three-col {
+    display: grid;
+    grid-template-columns: 1fr 80px 1fr 80px 1fr;
+    gap: 0;
+    align-items: stretch;
+    margin-bottom: 32px;
+  }
+
+  .pillar {
+    border-radius: 16px;
+    padding: 28px 24px;
+    position: relative;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+  }
+  .pillar:hover { transform: translateY(-4px); box-shadow: 0 20px 50px rgba(0,0,0,0.4); }
+
+  .pillar-verein {
+    background: linear-gradient(145deg, #1e3a8a, #1a2a6e);
+    border: 2px solid var(--gold);
+  }
+  .pillar-partei {
+    background: linear-gradient(145deg, var(--navy), var(--navy-dark));
+    border: 2px solid rgba(255,255,255,0.2);
+  }
+  .pillar-kandidaten {
+    background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
+    border: 2px solid rgba(255,255,255,0.12);
+  }
+
+  .pillar-icon { font-size: 32px; margin-bottom: 12px; }
+  .pillar-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .pillar-verein .pillar-title { color: var(--gold); }
+  .pillar-partei .pillar-title { color: var(--white); }
+  .pillar-kandidaten .pillar-title { color: var(--gray); }
+
+  .pillar-size {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    display: inline-block;
+  }
+  .pillar-verein .pillar-size { background: rgba(240,165,0,0.2); color: var(--gold); }
+  .pillar-partei .pillar-size { background: rgba(255,255,255,0.1); color: var(--gray); }
+  .pillar-kandidaten .pillar-size { background: rgba(255,255,255,0.06); color: #666; }
+
+  .pillar-desc {
+    font-size: 13.5px;
+    line-height: 1.65;
+    color: rgba(255,255,255,0.75);
+  }
+
+  .pillar-tags {
+    margin-top: 14px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .tag {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 9px;
+    border-radius: 12px;
+    letter-spacing: 0.3px;
+  }
+  .tag-green { background: rgba(45,158,95,0.2); color: #5dce8f; border: 1px solid rgba(45,158,95,0.3); }
+  .tag-red { background: rgba(214,59,59,0.15); color: #e87777; border: 1px solid rgba(214,59,59,0.25); }
+  .tag-gray { background: rgba(138,154,181,0.15); color: var(--gray); border: 1px solid rgba(138,154,181,0.2); }
+  .tag-gold { background: rgba(240,165,0,0.15); color: var(--gold); border: 1px solid rgba(240,165,0,0.25); }
+
+  .connector {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 0 4px;
+  }
+  .conn-arrow { font-size: 22px; color: var(--gold); opacity: 0.7; }
+  .conn-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--gray);
+    text-align: center;
+    line-height: 1.3;
+  }
+  .conn-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 4px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.04);
+    width: 100%;
+  }
+  .no-arrow { color: var(--red); font-size: 18px; }
+
+  .size-visual {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 24px;
+    margin: 32px 0;
+    padding: 32px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  .size-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .size-item:hover { opacity: 0.85; }
+  .size-circle {
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    transition: transform 0.3s ease;
+  }
+  .size-item:hover .size-circle { transform: scale(1.05); }
+  .circle-verein {
+    width: 160px; height: 160px;
+    background: radial-gradient(circle at 35% 35%, #2a4db0, #1a2a6e);
+    border: 3px solid var(--gold);
+    font-size: 18px;
+    color: var(--gold);
+    flex-direction: column;
+    gap: 2px;
+  }
+  .circle-partei {
+    width: 80px; height: 80px;
+    background: radial-gradient(circle at 35% 35%, #243470, #0f1a3d);
+    border: 2px solid rgba(255,255,255,0.3);
+    font-size: 11px;
+    color: var(--white);
+    flex-direction: column;
+    gap: 1px;
+  }
+  .circle-kandidaten {
+    width: 72px; height: 72px;
+    background: radial-gradient(circle at 35% 35%, #333, #1a1a1a);
+    border: 2px solid rgba(255,255,255,0.12);
+    font-size: 10px;
+    color: var(--gray);
+    flex-direction: column;
+    gap: 1px;
+  }
+  .size-name { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.8); text-align: center; }
+  .size-label { font-size: 11px; color: var(--gray); text-align: center; max-width: 120px; }
+
+  .insight-box {
+    background: linear-gradient(135deg, rgba(240,165,0,0.12), rgba(240,165,0,0.04));
+    border: 1.5px solid rgba(240,165,0,0.35);
+    border-radius: 16px;
+    padding: 24px 28px;
+    margin: 24px 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .insight-box::before {
+    content: '"';
+    font-family: 'Playfair Display', serif;
+    font-size: 120px;
+    color: rgba(240,165,0,0.08);
+    position: absolute;
+    top: -20px;
+    left: 10px;
+    line-height: 1;
+    pointer-events: none;
+  }
+  .insight-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 10px;
+  }
+  .insight-text {
+    font-size: 15.5px;
+    line-height: 1.7;
+    color: rgba(255,255,255,0.9);
+    font-weight: 400;
+  }
+  .insight-text strong { color: var(--gold); font-weight: 700; }
+
+  .problem-vs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 32px;
+  }
+  .problem-card { border-radius: 16px; padding: 28px 24px; }
+  .problem-card.bad { background: rgba(214,59,59,0.08); border: 1.5px solid rgba(214,59,59,0.25); }
+  .problem-card.good { background: rgba(45,158,95,0.08); border: 1.5px solid rgba(45,158,95,0.3); }
+  .card-head { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+  .card-icon { font-size: 28px; }
+  .card-title { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; }
+  .bad .card-title { color: #e87777; }
+  .good .card-title { color: #5dce8f; }
+  .problem-list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+  .problem-list li { font-size: 13.5px; line-height: 1.6; color: rgba(255,255,255,0.8); padding-left: 20px; position: relative; }
+  .problem-list li::before { content: '→'; position: absolute; left: 0; font-weight: 700; }
+  .bad .problem-list li::before { color: #e87777; }
+  .good .problem-list li::before { color: #5dce8f; }
+
+  .flow-diagram {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    padding: 32px;
+    margin: 24px 0;
+  }
+  .flow-title {
+    font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--gold); text-align: center; margin-bottom: 28px;
+  }
+  .flow-row { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+  .flow-node { padding: 10px 18px; border-radius: 10px; font-size: 13px; font-weight: 600; text-align: center; min-width: 130px; }
+  .fn-bad { background: rgba(214,59,59,0.15); border: 1.5px solid rgba(214,59,59,0.3); color: #e87777; }
+  .fn-good { background: rgba(45,158,95,0.12); border: 1.5px solid rgba(45,158,95,0.3); color: #5dce8f; }
+  .fn-neutral { background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.7); }
+  .fn-gold { background: rgba(240,165,0,0.12); border: 1.5px solid rgba(240,165,0,0.3); color: var(--gold); }
+  .flow-arr { color: var(--gray); font-size: 18px; opacity: 0.6; }
+  .flow-label { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--gray); text-align: center; margin: 4px 0 16px; }
+  .flow-separator { height: 1px; background: rgba(255,255,255,0.08); margin: 20px 0; }
+
+  .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .detail-card { background: rgba(255,255,255,0.04); border-radius: 16px; padding: 24px; border: 1px solid rgba(255,255,255,0.08); }
+  .detail-card.highlight { background: rgba(240,165,0,0.05); border-color: rgba(240,165,0,0.25); grid-column: 1 / -1; }
+  .detail-head { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+  .detail-icon { font-size: 22px; }
+  .detail-title { font-family: 'Playfair Display', serif; font-size: 17px; font-weight: 700; }
+  .detail-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .detail-list li { font-size: 13px; line-height: 1.6; color: rgba(255,255,255,0.78); display: flex; gap: 8px; }
+  .detail-list li .bullet { color: var(--gold); font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+
+  .rules-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 24px 0; }
+  .rule-card { border-radius: 14px; padding: 20px; text-align: center; transition: transform 0.2s; cursor: default; }
+  .rule-card:hover { transform: translateY(-3px); }
+  .rule-card.allowed { background: rgba(45,158,95,0.1); border: 1.5px solid rgba(45,158,95,0.3); }
+  .rule-card.forbidden { background: rgba(214,59,59,0.08); border: 1.5px solid rgba(214,59,59,0.25); }
+  .rule-icon { font-size: 26px; margin-bottom: 8px; }
+  .rule-text { font-size: 13px; line-height: 1.55; color: rgba(255,255,255,0.82); }
+  .rule-badge { display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 2px 8px; border-radius: 10px; margin-bottom: 8px; }
+  .allowed .rule-badge { background: rgba(45,158,95,0.2); color: #5dce8f; }
+  .forbidden .rule-badge { background: rgba(214,59,59,0.2); color: #e87777; }
+
+  @keyframes fadeSlideIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+  .view-active { animation: fadeSlideIn 0.35s ease forwards; }
+  @keyframes pulse-border { 0%, 100% { box-shadow: 0 0 0 0 rgba(240,165,0,0.4); } 50% { box-shadow: 0 0 0 8px rgba(240,165,0,0); } }
+  .pillar-verein { animation: pulse-border 3s ease-in-out infinite; }
+
+  .section-title { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; color: var(--white); margin: 32px 0 16px; display: flex; align-items: center; gap: 10px; }
+  .section-title::after { content: ''; flex: 1; height: 1px; background: rgba(255,255,255,0.1); }
+  .section-title span { color: var(--gold); }
+
+  @media (max-width: 700px) {
+    .three-col { grid-template-columns: 1fr; }
+    .connector { flex-direction: row; padding: 8px 0; }
+    .problem-vs { grid-template-columns: 1fr; }
+    .details-grid { grid-template-columns: 1fr; }
+    .rules-grid { grid-template-columns: 1fr 1fr; }
+    .size-visual { flex-direction: column; align-items: center; }
+    .detail-card.highlight { grid-column: 1; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo-row">
+    <div class="tf-logo">TF</div>
+    <h1>Das <span>Konstrukt</span></h1>
+  </div>
+  <p class="subtitle">Wie Team Freiheit Mandatsträger vom innerparteilichen Druck befreit</p>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="showView('overview')">Überblick</button>
+  <button class="tab" onclick="showView('problem')">Das Problem & die Lösung</button>
+  <button class="tab" onclick="showView('details')">Regeln & Details</button>
+</div>
+
+<div class="canvas">
+
+  <div id="view-overview" class="view-active">
+    <div class="three-col">
+      <div class="pillar pillar-verein" onclick="showView('details')">
+        <div class="pillar-icon">🏛️</div>
+        <div class="pillar-title">Verein</div>
+        <div class="pillar-size">Offen für alle</div>
+        <div class="pillar-desc">Das Herzstück. Jeder, der sich freiheitlich engagieren möchte, ist willkommen. Hier entsteht Programm, hier findet Austausch statt – ohne Karrieredruck.</div>
+        <div class="pillar-tags">
+          <span class="tag tag-green">✓ Mitglied werden</span>
+          <span class="tag tag-green">✓ Inhaltlich mitarbeiten</span>
+          <span class="tag tag-gold">Max. 12 Vollmitglieder</span>
+          <span class="tag tag-green">✓ Fördermitglied</span>
+        </div>
+      </div>
+      <div class="connector">
+        <div class="conn-block">
+          <span class="conn-arrow">⇅</span>
+          <span class="conn-label">Inhaltlicher Austausch</span>
+        </div>
+        <div class="conn-block" style="margin-top: 8px;">
+          <span class="conn-arrow" style="font-size:16px; color: var(--gray)">wählt</span>
+          <span class="conn-arrow">↓</span>
+        </div>
+      </div>
+      <div class="pillar pillar-partei" onclick="showView('details')">
+        <div class="pillar-icon">⚖️</div>
+        <div class="pillar-title">Partei</div>
+        <div class="pillar-size">Sehr wenige</div>
+        <div class="pillar-desc">Honoratiorenpartei. Nur der Vorstand existiert – unvergütet. Keine Karrierepositionen, keine Listenplätze für Mitglieder. Wählt alle 2 Jahre einen neuen Vorstand.</div>
+        <div class="pillar-tags">
+          <span class="tag tag-red">✗ Nicht kandidieren</span>
+          <span class="tag tag-gray">Bundesverband + 16 Länder</span>
+          <span class="tag tag-gray">Unvergüteter Vorstand</span>
+        </div>
+      </div>
+      <div class="connector">
+        <div class="conn-block">
+          <span class="conn-arrow">⇅</span>
+          <span class="conn-label">Inhaltlicher Austausch</span>
+        </div>
+        <div class="conn-block" style="margin-top: 8px;">
+          <span class="no-arrow">✕</span>
+          <span class="conn-label" style="color: var(--red);">Kein Einfluss auf Aufstellung</span>
+        </div>
+      </div>
+      <div class="pillar pillar-kandidaten" onclick="showView('details')">
+        <div class="pillar-icon">🎯</div>
+        <div class="pillar-title">Kandidaten</div>
+        <div class="pillar-size">Parteilos</div>
+        <div class="pillar-desc">Können Mitglied im Verein sein, aber nicht in der Partei. Kommen nur über Inhalt und Kompetenz auf die Liste – nicht über innerparteiliche Netzwerke.</div>
+        <div class="pillar-tags">
+          <span class="tag tag-green">✓ Im Verein sein</span>
+          <span class="tag tag-red">✗ In der Partei sein</span>
+          <span class="tag tag-gold">Nur über Kompetenz</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="size-visual">
+      <div class="size-item" onclick="showView('details')">
+        <div class="size-circle circle-verein" style="display: flex;">
+          <div style="text-align:center;">
+            <div style="font-size: 30px; font-weight: 900; color: var(--gold);">∞</div>
+            <div style="font-size: 12px; color: rgba(255,255,255,0.7); margin-top: -4px;">Fördermitglieder</div>
+          </div>
+        </div>
+        <div class="size-name">Verein</div>
+        <div class="size-label">Offen für jeden Freiheitlichen</div>
+      </div>
+      <div style="display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 12px; padding-bottom: 20px;">
+        <div class="size-item" onclick="showView('details')">
+          <div class="size-circle circle-partei" style="display: flex; flex-direction: column;">
+            <div style="font-size: 16px; font-weight: 900;">~50</div>
+            <div style="font-size: 9px; opacity: 0.7; margin-top: -2px;">Mitglieder</div>
+          </div>
+          <div class="size-name" style="font-size: 12px;">Partei</div>
+          <div class="size-label">Honoratioren</div>
+        </div>
+        <div class="size-item" onclick="showView('details')">
+          <div class="size-circle circle-kandidaten" style="display: flex; flex-direction: column;">
+            <div style="font-size: 14px; font-weight: 900;">n</div>
+            <div style="font-size: 9px; opacity: 0.6; margin-top: -2px;">Kandidaten</div>
+          </div>
+          <div class="size-name" style="font-size: 12px;">Kandidaten</div>
+          <div class="size-label">Parteilos</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="insight-box">
+      <div class="insight-label">Der Kern der Idee</div>
+      <div class="insight-text">
+        Wer in der Partei ist, <strong>kann nicht kandidieren</strong>. Wer kandidiert, <strong>kann nicht in der Partei sein</strong>. So hängt die politische Karriere eines Mandatsträgers einzig und allein von der <strong>Zustimmung der Wähler</strong> ab – nicht von innerparteilichen Seilschaften.
+      </div>
+    </div>
+  </div>
+
+  <div id="view-problem" style="display:none;">
+    <div class="section-title">Das <span>Problem</span> klassischer Parteipolitik</div>
+    <div class="flow-diagram">
+      <div class="flow-title">Der klassische Teufelskreis</div>
+      <div class="flow-row">
+        <div class="flow-node fn-neutral">Kandidat tritt in Partei ein</div>
+        <span class="flow-arr">→</span>
+        <div class="flow-node fn-bad">Innerparteiliche Karriere beginnt</div>
+      </div>
+      <div class="flow-label">Listenplätze hängen von Parteifreunden ab</div>
+      <div class="flow-row">
+        <div class="flow-node fn-bad">Mehr Fokus auf Parteigremien...</div>
+        <span class="flow-arr">→</span>
+        <div class="flow-node fn-bad">...als auf Wählerinteressen</div>
+      </div>
+      <div class="flow-label">Der Mandatsträger spricht für die Partei – nicht für den Wähler</div>
+      <div class="flow-row">
+        <div class="flow-node fn-bad">Seilschaften statt Inhalte</div>
+        <span class="flow-arr">→</span>
+        <div class="flow-node fn-bad">Karriere hängt an Loyalität</div>
+      </div>
+      <div class="flow-separator"></div>
+      <div class="flow-title" style="color: #e87777;">Ergebnis: Mandatsträger braucht die Partei mehr als den Wähler</div>
+    </div>
+
+    <div class="problem-vs">
+      <div class="problem-card bad">
+        <div class="card-head">
+          <span class="card-icon">❌</span>
+          <div class="card-title">Klassische Partei</div>
+        </div>
+        <ul class="problem-list">
+          <li>Kandidat muss sich bei Parteifreunden einschmeicheln</li>
+          <li>Listenplatz durch innerparteiliche Loyalität</li>
+          <li>Parteivorstand kann Kandidatur blockieren</li>
+          <li>Mandatsträger ist der Partei verpflichtet – nicht dem Wähler</li>
+          <li>Fraktionsdisziplin ersetzt freies Mandat</li>
+          <li>Politische Positionen folgen dem Partei-Mainstream</li>
+        </ul>
+      </div>
+      <div class="problem-card good">
+        <div class="card-head">
+          <span class="card-icon">✅</span>
+          <div class="card-title">Team Freiheit</div>
+        </div>
+        <ul class="problem-list">
+          <li>Kandidat kommt nur über Inhalt und Kompetenz auf die Liste</li>
+          <li>Keine innerparteiliche Karriere möglich</li>
+          <li>Partei kann Kandidaten nicht durch internen Druck steuern</li>
+          <li>Mandatsträger ist einzig dem Wähler verpflichtet</li>
+          <li>Kein Fraktionszwang durch Parteiabhängigkeit</li>
+          <li>Freiheit der Überzeugung statt Parteilinie</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="flow-diagram">
+      <div class="flow-title" style="color: #5dce8f;">Team Freiheit: Der neue Kreislauf</div>
+      <div class="flow-row">
+        <div class="flow-node fn-neutral">Interessierter engagiert sich im Verein</div>
+        <span class="flow-arr">→</span>
+        <div class="flow-node fn-gold">Entwickelt Inhalt & Kompetenz</div>
+      </div>
+      <div class="flow-label">Keine Parteikarriere, kein innerparteilicher Aufstieg</div>
+      <div class="flow-row">
+        <div class="flow-node fn-gold">Überzeugt Parteimitglieder durch Inhalte</div>
+        <span class="flow-arr">→</span>
+        <div class="flow-node fn-good">Wird als Kandidat aufgestellt</div>
+      </div>
+      <div class="flow-label">Als Kandidat: Austritt aus der Partei, bleibt im Verein</div>
+      <div class="flow-row">
+        <div class="flow-node fn-good">Im Parlament: frei & nur dem Wähler verpflichtet</div>
+        <span class="flow-arr">→</span>
+        <div class="flow-node fn-good">Wiederaufstellung nur durch Wählerzustimmung</div>
+      </div>
+      <div class="flow-separator"></div>
+      <div class="flow-title" style="color: #5dce8f;">Ergebnis: Mandatsträger braucht den Wähler – nicht die Partei</div>
+    </div>
+
+    <div class="insight-box">
+      <div class="insight-label">Strukturelle Logik</div>
+      <div class="insight-text">
+        Da Kandidaten der Partei strukturell <strong>nichts bieten können</strong> – keine Stimmen in Parteiorganen, keinen Einfluss auf Listenplätze –, kann die Partei die Kandidaten nicht durch versteckte Abhängigkeiten steuern. Die Aufstellung erfolgt <strong>ausschließlich über Inhalte</strong>.
+      </div>
+    </div>
+  </div>
+
+  <div id="view-details" style="display:none;">
+    <div class="section-title">Die <span>Regeln</span></div>
+    <div class="rules-grid">
+      <div class="rule-card allowed">
+        <div class="rule-icon">🏛️</div>
+        <div class="rule-badge">Erlaubt</div>
+        <div class="rule-text">Partei­mitglied <strong>und</strong> Verein­mitglied sein</div>
+      </div>
+      <div class="rule-card forbidden">
+        <div class="rule-icon">🚫</div>
+        <div class="rule-badge">Verboten</div>
+        <div class="rule-text">Partei­mitglied <strong>und</strong> Kandidat sein</div>
+      </div>
+      <div class="rule-card allowed">
+        <div class="rule-icon">🎯</div>
+        <div class="rule-badge">Erlaubt</div>
+        <div class="rule-text">Kandidat <strong>und</strong> Vereins­mitglied sein</div>
+      </div>
+      <div class="rule-card forbidden">
+        <div class="rule-icon">🚫</div>
+        <div class="rule-badge">Verboten</div>
+        <div class="rule-text">Kandidat <strong>und</strong> Partei­mitglied sein</div>
+      </div>
+      <div class="rule-card allowed">
+        <div class="rule-icon">✅</div>
+        <div class="rule-badge">Erlaubt</div>
+        <div class="rule-text">Jeder kann dem <strong>Verein beitreten</strong> – keine Hürden</div>
+      </div>
+      <div class="rule-card forbidden">
+        <div class="rule-icon">🚫</div>
+        <div class="rule-badge">Verboten</div>
+        <div class="rule-text">Verein­mitglieder haben <strong>keinen Karriere­anspruch</strong></div>
+      </div>
+    </div>
+
+    <div class="section-title">Details der <span>drei Ebenen</span></div>
+    <div class="details-grid">
+      <div class="detail-card">
+        <div class="detail-head">
+          <span class="detail-icon">🏛️</span>
+          <div class="detail-title" style="color: var(--gold);">Verein Team Freiheit</div>
+        </div>
+        <ul class="detail-list">
+          <li><span class="bullet">•</span> Max. 12 Vollmitglieder – schützt vor feindlicher Übernahme</li>
+          <li><span class="bullet">•</span> Beliebig viele Fördermitglieder – offen für jeden</li>
+          <li><span class="bullet">•</span> Inhaltliche Mitarbeit offen für alle</li>
+          <li><span class="bullet">•</span> Keine Karriereoptionen – kein Anreiz für taktisches Mitmachen</li>
+          <li><span class="bullet">•</span> Programmentwicklung ohne Bindungspflicht für die Partei</li>
+          <li><span class="bullet">•</span> Treffpunkt aller Freiheitlich-Interessierten</li>
+        </ul>
+      </div>
+      <div class="detail-card">
+        <div class="detail-head">
+          <span class="detail-icon">⚖️</span>
+          <div class="detail-title" style="color: rgba(255,255,255,0.9);">Partei (Honoratiorenpartei)</div>
+        </div>
+        <ul class="detail-list">
+          <li><span class="bullet">•</span> Mitglieder können nicht kandidieren – strikte Trennung</li>
+          <li><span class="bullet">•</span> Bundesverband + 16 Landesverbände</li>
+          <li><span class="bullet">•</span> Wählt alle 2 Jahre einen neuen Parteivorstand</li>
+          <li><span class="bullet">•</span> Vorstand ist unvergütet – kein Anreiz für Machtakkumulation</li>
+          <li><span class="bullet">•</span> Außer Vorstand keine weiteren Posten in der Partei</li>
+          <li><span class="bullet">•</span> Stellt Kandidaten auf – nur über Inhalte, nicht Loyalität</li>
+        </ul>
+      </div>
+      <div class="detail-card highlight">
+        <div class="detail-head">
+          <span class="detail-icon">🎯</span>
+          <div class="detail-title" style="color: var(--gray);">Kandidaten – Schlüssel des Konstrukts</div>
+        </div>
+        <ul class="detail-list" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <li><span class="bullet">•</span> Können nicht in der Partei sein – müssen austreten wenn aufgestellt</li>
+          <li><span class="bullet">•</span> Können im Verein sein – inhaltliche Anbindung bleibt</li>
+          <li><span class="bullet">•</span> Müssen die Partei durch Inhalte und Kompetenz überzeugen</li>
+          <li><span class="bullet">•</span> Können der Partei strukturell nichts bieten – keine Abhängigkeit</li>
+          <li><span class="bullet">•</span> Sind im Parlament nur dem Wähler verpflichtet</li>
+          <li><span class="bullet">•</span> Wiederaufstellung hängt an Wählergunst – nicht an Partei</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="insight-box" style="margin-top: 24px;">
+      <div class="insight-label">Warum das funktioniert</div>
+      <div class="insight-text">
+        Das Konstrukt schafft einen <strong>strukturellen Interessenskonflikt zwischen Partei und Kandidat bewusst ab</strong>. Da der Kandidat die Partei weder für seine Aufstellung noch für seine Wiederwahl braucht – und die Partei ihn weder bestrafen noch belohnen kann – entsteht ein <strong>freies Mandat</strong> aus Prinzip, nicht aus Wohlwollen.
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function showView(id) {
+    ['overview','problem','details'].forEach(v => {
+      const el = document.getElementById('view-' + v);
+      el.style.display = 'none';
+      el.classList.remove('view-active');
+    });
+    document.querySelectorAll('.tab').forEach((t, i) => {
+      t.classList.remove('active');
+      if (['overview','problem','details'][i] === id) t.classList.add('active');
+    });
+    const target = document.getElementById('view-' + id);
+    target.style.display = 'block';
+    setTimeout(() => target.classList.add('view-active'), 10);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+
+</body>
+</html>
